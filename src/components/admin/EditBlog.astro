@@ -1,0 +1,27 @@
+---
+const { blogData } = Astro.props;
+---
+
+<div id="edit-blog"></div>
+
+<script>
+  import EditBlog from './EditBlog.jsx';
+  import React from 'react';
+  import { createRoot } from 'react-dom/client';
+
+  const container = document.getElementById('edit-blog');
+  if (container) {
+    const root = createRoot(container);
+    const blogData = JSON.parse(container.dataset.blogData || '{}');
+    root.render(React.createElement(EditBlog, { blogData }));
+  }
+</script>
+
+<script define:vars={{ blogData }}>
+  if (typeof window !== 'undefined') {
+    const container = document.getElementById('edit-blog');
+    if (container) {
+      container.dataset.blogData = JSON.stringify(blogData);
+    }
+  }
+</script>

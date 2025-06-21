@@ -1,0 +1,82 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navigation = [
+  { name: "Upload Blog", path: "/admin/upload-blog" },
+  { name: "Manage Blogs", path: "/admin/blogs" },
+];
+---
+
+<header class="py-4 mb-6 border-b border-gray-700">
+  <div class="container mx-auto px-4">
+    <div
+      class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0"
+    >
+      <h3 class="text-h5 lg:text-h4 font-[500] text-neutral-800">
+        Admin Dashboard
+      </h3>
+
+      <div class="flex items-center space-x-4">
+        <nav class="flex space-x-2">
+          {
+            navigation.map((item) => (
+              <a
+                href={item.path}
+                class={`px-4 py-2 rounded transition-colors ${
+                  currentPath === item.path
+                    ? "bg-primary text-neutral-99"
+                    : "text-neutral-800 hover:bg-primary hover:text-neutral-99"
+                } text-bodysmal`}
+              >
+                {item.name}
+              </a>
+            ))
+          }
+        </nav>
+
+        <button
+          id="logout-btn"
+          class="bg-primary hover:bg-primary-light text-neutral-99 text-bodysmal px-4 py-2 rounded transition-colors"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("authTimestamp");
+        window.location.href = "/admin/login";
+      });
+    }
+
+    // Check authentication
+    const checkAuth = () => {
+      if (window.location.pathname === "/admin/login") return;
+
+      const isAuthenticated = localStorage.getItem("isAuthenticated");
+      const authTimestamp = localStorage.getItem("authTimestamp");
+
+      const isValid =
+        isAuthenticated === "true" &&
+        authTimestamp &&
+        Date.now() - parseInt(authTimestamp) < 24 * 60 * 60 * 1000;
+
+      if (!isValid) {
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("authTimestamp");
+        window.location.href = "/admin/login";
+      }
+    };
+
+    checkAuth();
+    setInterval(checkAuth, 5 * 60 * 1000);
+  });
+</script>

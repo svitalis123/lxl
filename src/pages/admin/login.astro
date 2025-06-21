@@ -1,0 +1,113 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+export const prerender = false;
+---
+
+<Layout title="Admin Login" description='community'>
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-neutral-200 to-neutral-300">
+    <div class="w-full max-w-md bg-neutral-99 rounded-[64px] shadow-lg">
+      <div class="p-8">
+        <h1 class="text-h5 lg:text-h4 font-[600] text-neutral-800 mb-8 text-center">Admin Login</h1>
+        
+        <form id="login-form" class="space-y-6">
+          <div>
+            <input
+              type="email"
+              id="email"
+              placeholder="Email"
+              required
+              class="w-full bg-neutral-200 border-none text-neutral-500 text-bodymed py-6 rounded-lg px-4"
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
+              class="w-full bg-neutral-200 border-none text-neutral-500 text-bodymed py-6 rounded-lg px-4"
+            />
+          </div>
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full bg-primary hover:bg-primary-light text-neutral-99 text-bodysmal font-[500] py-6 rounded-lg transition-colors"
+          >
+            Sign In
+          </button>
+        </form>
+
+        <div id="error-message" class="mt-4 text-red-500 text-center hidden"></div>
+        <div id="attempts-warning" class="mt-4 text-orange-500 text-center hidden"></div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('login-form');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorMessage = document.getElementById('error-message');
+    const attemptsWarning = document.getElementById('attempts-warning');
+
+    let attempts = 0;
+    const MAX_ATTEMPTS = 2;
+
+    // Get environment variables (these should be set in your .env file)
+    const ADMIN_EMAIL = import.meta.env.PUBLIC_ADMIN_EMAIL;
+    const ADMIN_PASSWORD = import.meta.env.PUBLIC_ADMIN_PASSWORD;
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = emailInput ? emailInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
+
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('authTimestamp', Date.now().toString());
+          
+          window.location.href = '/admin/upload-blog';
+        } else {
+          attempts++;
+          const remainingAttempts = MAX_ATTEMPTS - attempts;
+          
+          if (remainingAttempts === 0) {
+            if (errorMessage) {
+              errorMessage.textContent = 'Maximum login attempts exceeded. Please try again later.';
+              errorMessage.classList.remove('hidden');
+            }
+            if (attemptsWarning) {
+              attemptsWarning.classList.add('hidden');
+            }
+            
+            if (emailInput) emailInput.disabled = true;
+            if (passwordInput) passwordInput.disabled = true;
+            if (submitBtn) submitBtn.disabled = true;
+            
+            setTimeout(() => {
+              attempts = 0;
+              if (emailInput) emailInput.disabled = false;
+              if (passwordInput) passwordInput.disabled = false;
+              if (submitBtn) submitBtn.disabled = false;
+              if (errorMessage) errorMessage.classList.add('hidden');
+            }, 30000);
+          } else {
+            if (attemptsWarning) {
+              attemptsWarning.textContent = `Invalid credentials. ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining.`;
+              attemptsWarning.classList.remove('hidden');
+            }
+            if (errorMessage) {
+              errorMessage.classList.add('hidden');
+            }
+          }
+        }
+      });
+    }
+  });
+</script>
