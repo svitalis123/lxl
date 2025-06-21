@@ -2,26 +2,23 @@
 const { blogData } = Astro.props;
 ---
 
-<div id="edit-blog"></div>
-
-<script>
-  import EditBlog from './EditBlog.jsx';
-  import React from 'react';
-  import { createRoot } from 'react-dom/client';
-
-  const container = document.getElementById('edit-blog');
-  if (container) {
-    const root = createRoot(container);
-    const blogData = JSON.parse(container.dataset.blogData || '{}');
-    root.render(React.createElement(EditBlog, { blogData }));
-  }
-</script>
+<div class="min-h-screen bg-neutral-200 py-8">
+  <div class="max-w-4xl mx-auto bg-neutral-99 rounded-[64px] shadow-lg">
+    <div class="p-8">
+      <h1 class="text-h5 lg:text-h4 font-[600] text-neutral-800 mb-8 text-center">
+        Edit Blog Post
+      </h1>
+      
+      <div id="edit-blog-form"></div>
+    </div>
+  </div>
+</div>
 
 <script define:vars={{ blogData }}>
-  if (typeof window !== 'undefined') {
-    const container = document.getElementById('edit-blog');
-    if (container) {
-      container.dataset.blogData = JSON.stringify(blogData);
-    }
-  }
+  // Store blog data globally for the React component
+  window.editBlogData = blogData;
+</script>
+
+<script>
+  import('../../scripts/edit-blog');
 </script>
